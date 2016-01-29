@@ -13,7 +13,32 @@ describe Admin::CategoriesController do
 
   it "test_index" do
     get :index
-    assert_response :redirect, :action => 'index'
+    assert_response :redirect, :action => 'new'
+  end
+
+  it "test_create" do
+    c = Factory(:category)
+    Category.should_receive(:find).with(:all).and_return([])
+    Category.should_receive(:new).and_return(c)
+    c.should_receive(:save!).and_return(true)
+    post :edit, 'category' => { :name => "new category" }
+    assert_response :redirect
+    assert_redirected_to :action => 'new'
+  end
+
+  describe "test_new" do
+    before(:each) do
+      get :new
+    end
+
+    it 'should render template new' do
+      assert_template 'new'
+    end
+    
+    it 'should not bug if no category is passed in the params' do
+      assigns(:params).should be_nil
+      assert_response :success
+    end
   end
 
   describe "test_edit" do
