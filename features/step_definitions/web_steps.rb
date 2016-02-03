@@ -41,11 +41,17 @@ Given /^the blog is set up$/ do
                 :profile_id => 1,
                 :name => 'admin',
                 :state => 'active'})
+  User.create!({:login => 'non-admin',
+                :password => 'aaaaaaaa',
+                :email => 'notadminjoe@snow.com',
+                :profile_id => 2,
+                :name => 'notadmin',
+                :state => 'active'})
 end
 
-And /^I am logged into the admin panel$/ do
+And /^I am logged into the (non-)?admin panel$/ do |non|
   visit '/accounts/login'
-  fill_in 'user_login', :with => 'admin'
+  fill_in 'user_login', :with => "#{non}admin"
   fill_in 'user_password', :with => 'aaaaaaaa'
   click_button 'Login'
   if page.respond_to? :should
