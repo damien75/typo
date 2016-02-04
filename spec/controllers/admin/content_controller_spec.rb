@@ -500,7 +500,8 @@ describe Admin::ContentController do
       
       context 'when we have admin privileges' do
         it 'should be able to merge' do
-          expect(:can_merge).to be_true
+          get :edit, 'id' => @article.id
+          expect(assigns(:can_merge)).to be_true
         end
       end
 
@@ -561,23 +562,23 @@ describe Admin::ContentController do
     describe 'merge action' do
       context 'when both article IDs are the same' do
         it 'should redirect to the same edit page' do
-          post :edit , :article_id => @article.id , :merge_with => @article.id
-          expect(response).to redirect_to(:edit , :id => @article.id)
+          post :merge , :article_id => @article.id , :merge_with => @article.id
+          expect(response).to redirect_to :action => :edit , :id => @article.id
           expect(flash[:error]).to be_present
         end
       end
       context 'when the other article ID does not exist' do
         it 'should redirect to the same edit page' do
-          post :edit , :article_id => @article.id , :merge_with => 0
-          expect(response).to redirect_to(:edit , :id => @article.id)
+          post :merge , :article_id => @article.id , :merge_with => 0
+          expect(response).to redirect_to :action => :edit , :id => @article.id
           expect(flash[:error]).to be_present
         end
       end
       
       it 'should redirect to index' do
         other_article = Factory(:article)
-        post :edit , :article_id => @article.id , :merge_with => other_article.id
-        expect(response).to redirect_to(:index)
+        post :merge , :article_id => @article.id , :merge_with => other_article.id
+        expect(response).to redirect_to :action => :index
         expect(flash[:notice]).to be_present
       end
       
@@ -669,7 +670,8 @@ describe Admin::ContentController do
 
       context 'when we do not have admin privileges' do
         it 'should not be able to merge' do
-          expect(:can_merge).to be_false
+          get :edit, 'id' => @article.id
+          expect(assigns(:can_merge)).to be_false
         end
       end
 
