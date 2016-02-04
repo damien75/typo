@@ -630,5 +630,95 @@ describe Article do
     end
 
   end
+  
+  describe "merge articles" do
+    before :each do
+      @article1 = Factory.create(:article)
+      @article2 = Factory.create(:article)
+    end
+    
+    context "when passing an invalid ID" do
+      it "shouldn't change the article" do
+        original_title = @article1.title
+        original_author = @article1.author
+        original_body = @article1.body
+        original_comments = @article1.comments
+        
+        merged_article = @article1.merge_with(0)
+        
+        expect(merged_article).to be_nil
+        expect(@article1.title).to eq(original_title)
+        expect(@article1.author).to eq(original_author)
+        expect(@article1.body).to eq(original_body)
+        expect(@article1.comments).to eq(original_comments)
+      end
+    end
+    
+    context 'when passing same ID' do
+      it 'should not be able to merge' do
+        original_title = @article1.title
+        original_author = @article1.author
+        original_body = @article1.body
+        original_comments = @article1.comments
+        
+        merged_article = @article1.merge_with(@article1.id)
+        
+        expect(merged_article).to be_nil
+        expect(@article1.title).to eq(original_title)
+        expect(@article1.author).to eq(original_author)
+        expect(@article1.body).to eq(original_body)
+        expect(@article1.comments).to eq(original_comments)
+      end
+    end
+    
+    context "when passing a valid ID" do
+      it "should merge in the first article and delete the second" do
+        merged_article = @article1.merge_with(@article2.id)
+        
+        expect(Article.find(@article2.id)).to be_nil
+        expect(Article.find(@article1.id)).not_to be_nil
+        expect(Article.find(@article1.id)).to eq(merged_article)
+      end
+      
+      it "should take the title of the first article" do
+        title1 = @article1.title = "title1"
+        title2 = @article2.title = "title2"
+        
+        merged_article = @article1.merge_with(@article2.id)
+        
+        expect(merged_article.title).to eq(title1)
+        expect(merged_article.title).not_to eq(title2)
+      end
+      
+      it "should take the author of the first article" do
+        author1 = @article1.title = "author1"
+        author2 = @article2.title = "author2"
+        
+        merged_article = @article1.merge_with(@article2.id)
+        
+        expect(merged_article.author).to eq(author1)
+        expect(merged_article.author).not_to eq(author2)
+      end
+      
+      it "should have the content of both articles" do
+        body1 = @article1.body = "body of article1"
+        body2 = @article2.body = "body of article2"
+        
+        merged_article = @article1.merge_with(@article2.id)
+        
+        expect(merged_article.body).to eq("#{body1}\n#{body2}")
+      end
+      
+      it "should have comments from both articles" do
+        comment1 = Factory.create(:comment, :article => @article1)
+        comment2 = Factory.create(:comment, :article => @article2)
+
+        merged_article = @article1.merge_with(@article2.id)
+
+        expect(merged_article.comments.count).to eq(2)
+        expect(merged_article.comments).to contain_exactly(comment1 , comment2)
+      end
+    end
+  end
 end
 

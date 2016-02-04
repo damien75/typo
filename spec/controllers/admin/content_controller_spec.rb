@@ -462,7 +462,6 @@ describe Admin::ContentController do
 
   end
 
-
   describe 'with admin connection' do
 
     before do
@@ -490,6 +489,12 @@ describe Admin::ContentController do
         assigns(:article).should be_valid
         response.should contain(/body/)
         response.should contain(/extended content/)
+      end
+      
+      context 'when we have admin privileges' do
+        it 'should be able to merge' do
+          expect(:can_merge).to be_true
+        end
       end
 
       it 'should update article by edit action' do
@@ -544,6 +549,32 @@ describe Admin::ContentController do
         Article.should_not be_exists({:id => draft.id})
         Article.should_not be_exists({:id => draft_2.id})
       end
+    end
+
+    describe 'merge action' do
+      context 'when both article IDs are the same' do
+        it 'should redirect to the same edit page' do
+          post :edit , :article_id => @article.id , :merge_with => @article.id
+          expect(response).to redirect_to(:edit , :id => @article.id)
+          expect(flash[:error]).to be_present
+        end
+      end
+      context 'when the other article ID does not exist' do
+        it 'should redirect to the same edit page' do
+          post :edit , :article_id => @article.id , :merge_with => 0
+          expect(response).to redirect_to(:edit , :id => @article.id)
+          expect(flash[:error]).to be_present
+        end
+      end
+      
+      it 'should redirect to index' do
+        other_article = Factory(:article)
+        post :edit , :article_id => @article.id , :merge_with => other_article.id
+        expect(response).to redirect_to(:index)
+        expect(flash[:notice]).to be_present
+      end
+      
+      
     end
 
     describe 'resource_add action' do
@@ -627,6 +658,12 @@ describe Admin::ContentController do
       it "should redirect if edit article doesn't his" do
         get :edit, :id => Factory(:article, :user => Factory(:user, :login => 'another_user')).id
         response.should redirect_to(:action => 'index')
+      end
+
+      context 'when we do not have admin privileges' do
+        it 'should not be able to merge' do
+          expect(:can_merge).to be_false
+        end
       end
 
       it 'should edit article' do
