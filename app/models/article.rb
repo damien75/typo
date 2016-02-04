@@ -74,7 +74,7 @@ class Article < Content
   def merge_with(other_article_id)
     other_article = Article.find_by_id(other_article_id)
 
-    return if other_article.nil?
+    return if other_article.nil? or other_article_id == self.id
 
     self.update_attributes(:body => "#{self.body}\n#{other_article.body}")
     
