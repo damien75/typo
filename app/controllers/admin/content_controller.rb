@@ -34,6 +34,7 @@ class Admin::ContentController < Admin::BaseController
       flash[:error] = _("Error, you are not allowed to perform this action")
       return
     end
+    @can_merge = current_user.admin?
     new_or_edit
   end
 
@@ -50,6 +51,27 @@ class Admin::ContentController < Admin::BaseController
     @record.destroy
     flash[:notice] = _("This article was deleted successfully")
     redirect_to :action => 'index'
+  end
+  
+  def merge
+    if params[:article_id] == params[:merge_with]
+      redirect_to :action => 'edit', :id => params[:article_id]
+      flash[:error] = "Cannot merge an article with itself"
+      return
+    end      
+
+    article = Article.find(params[:article_id])
+    merged_article = article.merge_with(params[:merge_with])
+
+    if merged_article.nil?
+      redirect_to :action => 'edit', :id => params[:article_id]
+      flash[:error] = "The selected article doesn't exist"
+      return
+    end
+
+    redirect_to :action => 'index'
+    flash[:notice] = "Successfully merged articles"
+
   end
 
   def insert_editor
