@@ -681,33 +681,36 @@ describe Article do
       end
       
       it "should take the title of the first article" do
-        title1 = @article1.title = "title1"
-        title2 = @article2.title = "title2"
+        title1 = "title1"
+        title2 = "title2"
+        @article1.update_attributes(:title => title1)
+        @article2.update_attributes(:title => title2)
         
-        @article1.merge_with(@article2.id)
-        merged_article = Article.find(@article1.id)
+        merged_article = @article1.merge_with(@article2.id)
         
         expect(merged_article.title).to eq(title1)
         expect(merged_article.title).not_to eq(title2)
       end
       
       it "should take the author of the first article" do
-        author1 = @article1.author = "author1"
-        author2 = @article2.author = "author2"
+        author1 = "author1"
+        author2 = "author2"
+        @article1.update_attributes(:author => author1)
+        @article2.update_attributes(:author => author2)
         
-        @article1.merge_with(@article2.id)
-        merged_article = Article.find(@article1.id)
+        merged_article = @article1.merge_with(@article2.id)
         
         expect(merged_article.author).to eq(author1)
         expect(merged_article.author).not_to eq(author2)
       end
       
       it "should have the content of both articles" do
-        body1 = @article1.body = "body of article1"
-        body2 = @article2.body = "body of article2"
+        body1 = "body of article1"
+        body2 = "body of article2"
+        @article1.update_attributes(:body => body1)
+        @article2.update_attributes(:body => body2)
         
-        @article1.merge_with(@article2.id)
-        merged_article = Article.find(@article1.id)
+        merged_article = @article1.merge_with(@article2.id)
         
         expect(merged_article.body).to eq("#{body1}\n#{body2}")
       end
