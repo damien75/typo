@@ -3,6 +3,13 @@
 describe Admin::ContentController do
   render_views
 
+  before do
+    Blog.delete_all
+    User.delete_all
+    Profile.delete_all
+    Article.delete_all
+  end
+
   # Like it's a shared, need call everywhere
   shared_examples_for 'index action' do
 

@@ -4,6 +4,7 @@ require 'spec_helper'
 describe Article do
 
   before do
+    Article.delete_all
     @blog = stub_model(Blog)
     @blog.stub(:base_url) { "http://myblog.net" }
     @blog.stub(:text_filter) { "textile" }
