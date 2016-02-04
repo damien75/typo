@@ -675,7 +675,7 @@ describe Article do
       it "should merge in the first article and delete the second" do
         merged_article = @article1.merge_with(@article2.id)
         
-        expect(Article.find(@article2.id)).to be_nil
+        expect{Article.find(@article2.id)}.to raise_error(ActiveRecord::RecordNotFound)
         expect(Article.find(@article1.id)).not_to be_nil
         expect(Article.find(@article1.id)).to eq(merged_article)
       end
@@ -684,17 +684,19 @@ describe Article do
         title1 = @article1.title = "title1"
         title2 = @article2.title = "title2"
         
-        merged_article = @article1.merge_with(@article2.id)
+        @article1.merge_with(@article2.id)
+        merged_article = Article.find(@article1.id)
         
         expect(merged_article.title).to eq(title1)
         expect(merged_article.title).not_to eq(title2)
       end
       
       it "should take the author of the first article" do
-        author1 = @article1.title = "author1"
-        author2 = @article2.title = "author2"
+        author1 = @article1.author = "author1"
+        author2 = @article2.author = "author2"
         
-        merged_article = @article1.merge_with(@article2.id)
+        @article1.merge_with(@article2.id)
+        merged_article = Article.find(@article1.id)
         
         expect(merged_article.author).to eq(author1)
         expect(merged_article.author).not_to eq(author2)
@@ -704,7 +706,8 @@ describe Article do
         body1 = @article1.body = "body of article1"
         body2 = @article2.body = "body of article2"
         
-        merged_article = @article1.merge_with(@article2.id)
+        @article1.merge_with(@article2.id)
+        merged_article = Article.find(@article1.id)
         
         expect(merged_article.body).to eq("#{body1}\n#{body2}")
       end
@@ -713,10 +716,11 @@ describe Article do
         comment1 = Factory.create(:comment, :article => @article1)
         comment2 = Factory.create(:comment, :article => @article2)
 
-        merged_article = @article1.merge_with(@article2.id)
+        @article1.merge_with(@article2.id)
+        merged_article = Article.find(@article1.id)
 
         expect(merged_article.comments.count).to eq(2)
-        expect(merged_article.comments).to contain_exactly(comment1 , comment2)
+        expect(merged_article.comments).to match_array([comment1 , comment2])
       end
     end
   end
